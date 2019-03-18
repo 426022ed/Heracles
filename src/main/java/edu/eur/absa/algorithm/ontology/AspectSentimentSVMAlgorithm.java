@@ -75,7 +75,7 @@ public class AspectSentimentSVMAlgorithm extends AbstractAlgorithm {
 	
 	public AspectSentimentSVMAlgorithm(String label, String analysisSpan, boolean failureAnalysis, int reviewType) {
 		super(label,analysisSpan);
-		evaluators.add(new AnnotationLabelEvaluator("opinion","polarity",failureAnalysis));
+		evaluators.add(new AnnotationLabelEvaluator("opinion","category",failureAnalysis));
 		
 		if (reviewType == RESTAURANTS){
 			revSentUnigrams = new NRCReviewSentimentLexicon(NRCReviewSentimentLexicon.RESTAURANTS_UNIGRAM);
@@ -149,8 +149,8 @@ public class AspectSentimentSVMAlgorithm extends AbstractAlgorithm {
 				//Framework.log("Opinion span: "+span.toString());
 				HashMap<Attribute, Double> instanceValues = new HashMap<>();
 				allInstanceValues.put(span,instanceValues);
-				if (span.hasAnnotation("polarity"))
-					targetValues.put(span, span.getAnnotation("polarity", String.class));
+				if (span.hasAnnotation("category"))
+					targetValues.put(span, span.getAnnotation("category", String.class));
 	
 				
 				
@@ -239,11 +239,13 @@ public class AspectSentimentSVMAlgorithm extends AbstractAlgorithm {
 //					System.exit(-1);
 				}
 				
+				/**
 				if (hasProperty("use_category")){
 					
 					listOfAttributes.putIfAbsent(category, new Attribute(category));
 					instanceValues.put(listOfAttributes.get(category), 1.0);
 				}
+				*/
 				
 				
 				HashSet<String> featureURIs = new HashSet<String>();
@@ -528,16 +530,26 @@ public class AspectSentimentSVMAlgorithm extends AbstractAlgorithm {
 		attributes.addAll(listOfAttributes.values());
 		if (classLabels.isEmpty()) {
 	//		classLabels.add("missing");
-			classLabels.add("positive");
-			classLabels.add("negative");
-			if (hasProperty("predict_neutral")){
-				classLabels.add("neutral");
+			classLabels.add("RESTAURANT#GENERAL");
+			classLabels.add("RESTAURANT#PRICES");
+			classLabels.add("RESTAURANT#MISCELLANEOUS");
+			classLabels.add("FOOD#PRICES");
+			classLabels.add("FOOD#QUALITY");
+			classLabels.add("FOOD#STYLE&OPTIONS");
+			classLabels.add("DRINKS#PRICES");
+			classLabels.add("DRINKS#QUALITY");
+			classLabels.add("DRINKS#STYLE&OPTIONS");
+			classLabels.add("AMBIENCE#GENERAL");
+			classLabels.add("SERVICE#GENERAL");
+			classLabels.add("LOCATION#GENERAL");
+			if (hasProperty("predict_null")){
+				classLabels.add("no_category");
 			}
 		}
-		Attribute sentimentTarget = new Attribute("polarity",classLabels); 
-		attributes.add(sentimentTarget);
+		Attribute aspectTarget = new Attribute("category",classLabels); 
+		attributes.add(aspectTarget);
 		allWekaData = new Instances(label, attributes, 0);
-		allWekaData.setClass(sentimentTarget);
+		allWekaData.setClass(aspectTarget);
 		
 		for (Span s : allInstanceValues.keySet()){
 			HashMap<Attribute, Double> instanceData = allInstanceValues.get(s);
@@ -556,8 +568,8 @@ public class AspectSentimentSVMAlgorithm extends AbstractAlgorithm {
 			}
 			
 			if (targetValues.containsKey(s)){
-				if (!hasProperty("predict_neutral") && targetValues.get(s).equalsIgnoreCase("neutral")){
-					i.setClassValue("positive");
+				if (!hasProperty("predict_null") && targetValues.get(s).equalsIgnoreCase("no_category")){
+					i.setClassValue("FOOD#QUALITY");
 				} else {
 					i.setClassValue(targetValues.get(s));
 				}
@@ -679,7 +691,7 @@ public class AspectSentimentSVMAlgorithm extends AbstractAlgorithm {
 				Span s = trainingSpans.get(i);
 				Prediction p = new Prediction(s);
 //				p.getAnnotations().put("polarity", stringPredictions.get(i).toString());
-				p.putAnnotation("polarity", classLabels.get((int)inSamplePredictions[i]));
+				p.putAnnotation("category", classLabels.get((int)inSamplePredictions[i]));
 				this.predictions.put(s, p.getSingletonSet());
 			}
 			
@@ -723,7 +735,7 @@ public class AspectSentimentSVMAlgorithm extends AbstractAlgorithm {
 				Prediction p = new Prediction(s);
 //				Main.debug(""+stringPredictions.get(i).actual() + "\t" + stringPredictions.get(i).predicted() + "\t" + predictions[i]);
 //				p.getAnnotations().put("polarity", stringPredictions.get(i).toString());
-				p.putAnnotation("polarity", classLabels.get((int)predictions[i]));
+				p.putAnnotation("category", classLabels.get((int)predictions[i]));
 				this.predictions.put(s, p.getSingletonSet());
 			}
 			

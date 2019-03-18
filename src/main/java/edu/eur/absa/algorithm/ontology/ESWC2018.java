@@ -73,13 +73,13 @@ public class ESWC2018 {
 			.setProperty("ont_ns", "http://www.kimschouten.com/sentiment/restaurant");
 		
 		AbstractAlgorithm BoW = new AspectSentimentSVMAlgorithm("BoW", "review", false, nrc)
-			.setBinaryProperties("use_stanford_sentence_sentiment", "use_review","predict_neutral", "use_category","use_hyperparameter_optimization","Xignore_validation_data")
+			.setBinaryProperties("use_sentence","predict_null", "use_hyperparameter_optimization","Xignore_validation_data")
 			.setProperty("ont", ontology)	
 			.setProperty("ont_ns", "http://www.kimschouten.com/sentiment/restaurant");	
 				
 		AbstractAlgorithm BoWOnt = new AspectSentimentSVMAlgorithm("BoW+Ont", "review", false, nrc)
-			.setBinaryProperties("use_stanford_sentence_sentiment", "use_review","predict_neutral", 
-					"use_category","use_hyperparameter_optimization","Xignore_validation_data",
+			.setBinaryProperties("use_sentence","predict_null", 
+					"use_hyperparameter_optimization","Xignore_validation_data",
 					"use_ontology")
 			.setProperty("ont", ontology)
 			.setProperty("ont_ns", "http://www.kimschouten.com/sentiment/restaurant");
