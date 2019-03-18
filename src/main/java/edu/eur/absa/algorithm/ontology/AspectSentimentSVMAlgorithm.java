@@ -535,10 +535,10 @@ public class AspectSentimentSVMAlgorithm extends AbstractAlgorithm {
 			classLabels.add("RESTAURANT#MISCELLANEOUS");
 			classLabels.add("FOOD#PRICES");
 			classLabels.add("FOOD#QUALITY");
-			classLabels.add("FOOD#STYLE&OPTIONS");
+			classLabels.add("FOOD#STYLE_OPTIONS");
 			classLabels.add("DRINKS#PRICES");
 			classLabels.add("DRINKS#QUALITY");
-			classLabels.add("DRINKS#STYLE&OPTIONS");
+			classLabels.add("DRINKS#STYLE_OPTIONS");
 			classLabels.add("AMBIENCE#GENERAL");
 			classLabels.add("SERVICE#GENERAL");
 			classLabels.add("LOCATION#GENERAL");

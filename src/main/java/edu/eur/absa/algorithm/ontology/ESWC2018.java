@@ -37,7 +37,7 @@ public class ESWC2018 {
 		
 		//If the raw SemEval XML data have not yet been processed (gone through NLP pipeline)
 		// you need to uncomment this
-//		SemEval2015Task12ABSAReader.main(null);
+		//SemEval2015Task12ABSAReader.main(null);
 		
 		/*
 		 * Read SemEval 2015 ABSA and SemEval 2016 ABSA data (restaurants only)
@@ -73,7 +73,7 @@ public class ESWC2018 {
 			.setProperty("ont_ns", "http://www.kimschouten.com/sentiment/restaurant");
 		
 		AbstractAlgorithm BoW = new AspectSentimentSVMAlgorithm("BoW", "review", false, nrc)
-			.setBinaryProperties("use_sentence","predict_null", "use_hyperparameter_optimization","Xignore_validation_data")
+			.setBinaryProperties("use_sentence", "use_hyperparameter_optimization","Xignore_validation_data")
 			.setProperty("ont", ontology)	
 			.setProperty("ont_ns", "http://www.kimschouten.com/sentiment/restaurant");	
 				
