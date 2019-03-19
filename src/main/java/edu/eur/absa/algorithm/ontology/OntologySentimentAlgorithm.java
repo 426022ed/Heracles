@@ -3,6 +3,7 @@ package edu.eur.absa.algorithm.ontology;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeSet;
@@ -33,14 +34,13 @@ public class OntologySentimentAlgorithm extends AbstractAlgorithm {
 	private AbstractAlgorithm backupAlg = null;
 	private boolean failureAnalysis = false;
 	private HashSet<String> allCategoryURIs; 
-	
-	
+	private ArrayList<String> classLabels = new ArrayList<String>();
 
 	
 	public OntologySentimentAlgorithm(String label,	String unitOfAnalysisSpanType) {
 		super(label, unitOfAnalysisSpanType);
 //		evaluators.add(new AnnotationLabelEvaluator("opinion","polarity",false,false));
-		evaluators.add(new AnnotationLabelEvaluator("opinion","polarity",false,true));
+		evaluators.add(new AnnotationLabelEvaluator("opinion","category",false,true));
 		
 		
 	}
@@ -57,9 +57,7 @@ public class OntologySentimentAlgorithm extends AbstractAlgorithm {
 			
 			if (backupAlg==null){
 				backupAlg = new AspectSentimentSVMAlgorithm("review",false)
-						.setBinaryProperties("use_stanford_sentence_sentiment", 
-								"use_review","predict_neutral", "use_category",
-								"use_hyperparameter_optimization","Xignore_validation_data")
+						.setBinaryProperties( "use_sentence","use_hyperparameter_optimization","Xignore_validation_data")
 						//.setProperty("ont", getProperty("ont"))
 						;
 				;
@@ -115,8 +113,8 @@ public class OntologySentimentAlgorithm extends AbstractAlgorithm {
 			Span sentence = getSentence(opinion);
 			
 			Prediction p = new Prediction(opinion);
-			p.putAnnotation("polarity", "positive");
-			String cat = "No sentiment";
+			p.putAnnotation("category", "FOOD#QUALITY");
+			String cat = "No aspect";
 			
 			p.putAnnotation("group", cat);
 			
@@ -127,16 +125,107 @@ public class OntologySentimentAlgorithm extends AbstractAlgorithm {
 	public void predictForReview(Span review){
 		Framework.log(System.currentTimeMillis()+"\tStart next review");
 		TreeSet<Span> opinionsForReview = review.getDataset().getSpans(review, "opinion");
-		Framework.log("Need to assign sentiment to "+opinionsForReview.size()+" opinions in this review");
+		Framework.log("Need to assign aspect to "+opinionsForReview.size()+" opinions in this review");
 		for (Span opinion : opinionsForReview){
 			HashMap<String, Double> foundURIs = findURIs(opinion, opinionsForReview, ont);
 			//looped over all words
 			
+			//Make booleans for every aspect, true if present, false if absent
+			boolean res_gen = foundURIs.containsKey(ont.URI_RESTAURANT_GENERAL);
+			boolean res_pri = foundURIs.containsKey(ont.URI_RESTAURANT_PRICES);
+			boolean res_misc = foundURIs.containsKey(ont.URI_RESTAURANT_MISCELLANEOUS);
+			boolean food_pri = foundURIs.containsKey(ont.URI_FOOD_PRICES);
+			boolean food_qua = foundURIs.containsKey(ont.URI_FOOD_QUALITY);
+			boolean food_sty = foundURIs.containsKey(ont.URI_FOOD_STYLE_OPTIONS);
+			boolean drink_pri = foundURIs.containsKey(ont.URI_DRINKS_PRICES);
+			boolean drink_qua = foundURIs.containsKey(ont.URI_DRINKS_QUALITY);
+			boolean drink_sty = foundURIs.containsKey(ont.URI_DRINKS_STYLE_OPTIONS);
+			boolean amb_gen = foundURIs.containsKey(ont.URI_AMBIENCE_GENERAL);
+			boolean serv_gen = foundURIs.containsKey(ont.URI_SERVICE_GENERAL);
+			boolean loc_gen = foundURIs.containsKey(ont.URI_LOCATION_GENERAL);
+			//convert the booleans to integers: 1 if true, 0 if false
+			int Res_gen = (res_gen) ? 1:0;
+			int Res_pri = (res_pri) ? 1:0;
+			int Res_misc = (res_misc) ? 1:0;
+			int Food_pri = (food_pri) ? 1:0;
+			int Food_qua = (food_qua) ? 1:0;
+			int Food_sty = (food_sty) ? 1:0;
+			int Drink_pri = (drink_pri) ? 1:0;
+			int Drink_qua = (drink_qua) ? 1:0;
+			int Drink_sty = (drink_sty) ? 1:0;
+			int Amb_gen = (amb_gen) ? 1:0;
+			int Serv_gen = (serv_gen) ? 1:0;
+			int Loc_gen = (loc_gen) ? 1:0;
+			//put the converted booleans in an array
+			Integer[] found_aspects = new Integer[11];
+			found_aspects[0] = Res_gen;
+			found_aspects[1] = Res_pri;
+			found_aspects[2] = Res_misc;
+			found_aspects[3] = Food_pri;
+			found_aspects[4] = Food_qua;
+			found_aspects[5] = Food_sty;
+			found_aspects[6] = Drink_pri;
+			found_aspects[7] = Drink_qua;
+			found_aspects[8] = Drink_sty;
+			found_aspects[9] = Amb_gen;
+			found_aspects[10] = Serv_gen;
+			found_aspects[11] = Loc_gen;
+			String prediction = "FOOD#QUALITY";
+			if (classLabels.isEmpty()) {
+				//		classLabels.add("missing");
+						classLabels.add("RESTAURANT#GENERAL");
+						classLabels.add("RESTAURANT#PRICES");
+						classLabels.add("RESTAURANT#MISCELLANEOUS");
+						classLabels.add("FOOD#PRICES");
+						classLabels.add("FOOD#QUALITY");
+						classLabels.add("FOOD#STYLE_OPTIONS");
+						classLabels.add("DRINKS#PRICES");
+						classLabels.add("DRINKS#QUALITY");
+						classLabels.add("DRINKS#STYLE_OPTIONS");
+						classLabels.add("AMBIENCE#GENERAL");
+						classLabels.add("SERVICE#GENERAL");
+						classLabels.add("LOCATION#GENERAL");
+						if (hasProperty("predict_null")){
+							classLabels.add("no_category");
+						}}
+			ArrayList<Double> frequency_aspects = new ArrayList<Double>();
+			if(frequency_aspects.isEmpty()){
+			frequency_aspects.add(foundURIs.get(ont.URI_RESTAURANT_GENERAL));
+			frequency_aspects.add(foundURIs.get(ont.URI_RESTAURANT_PRICES));
+			frequency_aspects.add(foundURIs.get(ont.URI_RESTAURANT_MISCELLANEOUS));
+			frequency_aspects.add(foundURIs.get(ont.URI_FOOD_PRICES));
+			frequency_aspects.add(foundURIs.get(ont.URI_FOOD_QUALITY));
+			frequency_aspects.add(foundURIs.get(ont.URI_FOOD_STYLE_OPTIONS));
+			frequency_aspects.add(foundURIs.get(ont.URI_DRINKS_PRICES));
+			frequency_aspects.add(foundURIs.get(ont.URI_DRINKS_QUALITY));
+			frequency_aspects.add(foundURIs.get(ont.URI_DRINKS_STYLE_OPTIONS));
+			frequency_aspects.add(foundURIs.get(ont.URI_AMBIENCE_GENERAL));
+			frequency_aspects.add(foundURIs.get(ont.URI_SERVICE_GENERAL));
+			frequency_aspects.add(foundURIs.get(ont.URI_LOCATION_GENERAL));}
+			
+			
 			boolean assignedPred = false;
 			boolean foundPos = foundURIs.containsKey(ont.URI_Positive);
 			boolean foundNeg = foundURIs.containsKey(ont.URI_Negative);
-			String prediction = "positive";
-			if (foundNeg && !foundPos){
+			//String prediction = "positive";
+			
+			int sum = 0;
+			int i;
+			for(i=0;i<12;i++){
+				sum += found_aspects[i];
+			}
+			
+		if(sum == 1){
+			int j = Arrays.asList(found_aspects).indexOf(1);
+			prediction = classLabels.get(j);
+			assignedPred = true;
+		}
+		else if(sum > 1){
+			
+		}
+			
+		
+		if (foundNeg && !foundPos){
 				prediction = "negative";
 				assignedPred = true;
 			}
