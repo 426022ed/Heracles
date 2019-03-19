@@ -143,6 +143,7 @@ public class OntologySentimentAlgorithm extends AbstractAlgorithm {
 			boolean amb_gen = foundURIs.containsKey(ont.URI_AMBIENCE_GENERAL);
 			boolean serv_gen = foundURIs.containsKey(ont.URI_SERVICE_GENERAL);
 			boolean loc_gen = foundURIs.containsKey(ont.URI_LOCATION_GENERAL);
+			
 			//convert the booleans to integers: 1 if true, 0 if false
 			int Res_gen = (res_gen) ? 1:0;
 			int Res_pri = (res_pri) ? 1:0;
@@ -156,22 +157,25 @@ public class OntologySentimentAlgorithm extends AbstractAlgorithm {
 			int Amb_gen = (amb_gen) ? 1:0;
 			int Serv_gen = (serv_gen) ? 1:0;
 			int Loc_gen = (loc_gen) ? 1:0;
+			
 			//put the converted booleans in an array
-			Integer[] found_aspects = new Integer[11];
-			found_aspects[0] = Res_gen;
-			found_aspects[1] = Res_pri;
-			found_aspects[2] = Res_misc;
-			found_aspects[3] = Food_pri;
-			found_aspects[4] = Food_qua;
-			found_aspects[5] = Food_sty;
-			found_aspects[6] = Drink_pri;
-			found_aspects[7] = Drink_qua;
-			found_aspects[8] = Drink_sty;
-			found_aspects[9] = Amb_gen;
-			found_aspects[10] = Serv_gen;
-			found_aspects[11] = Loc_gen;
+			ArrayList<Integer> found_aspects = new ArrayList<Integer>();
+			found_aspects.add(Res_gen);
+			found_aspects.add(Res_pri);
+			found_aspects.add(Res_misc);
+			found_aspects.add(Food_pri);
+			found_aspects.add(Food_qua);
+			found_aspects.add(Food_sty);
+			found_aspects.add(Drink_pri);
+			found_aspects.add(Drink_qua);
+			found_aspects.add(Drink_sty);
+			found_aspects.add(Amb_gen);
+			found_aspects.add(Serv_gen);
+			found_aspects.add(Loc_gen);
 			String prediction = "FOOD#QUALITY";
-			if (classLabels.isEmpty()) {
+			
+			if (classLabels.isEmpty()) 
+			{
 				//		classLabels.add("missing");
 						classLabels.add("RESTAURANT#GENERAL");
 						classLabels.add("RESTAURANT#PRICES");
@@ -185,11 +189,16 @@ public class OntologySentimentAlgorithm extends AbstractAlgorithm {
 						classLabels.add("AMBIENCE#GENERAL");
 						classLabels.add("SERVICE#GENERAL");
 						classLabels.add("LOCATION#GENERAL");
-						if (hasProperty("predict_null")){
+						
+						if (hasProperty("predict_null"))
+						{
 							classLabels.add("no_category");
-						}}
+						}
+				}
+			
 			ArrayList<Double> frequency_aspects = new ArrayList<Double>();
-			if(frequency_aspects.isEmpty()){
+			if(frequency_aspects.isEmpty())
+			{
 			frequency_aspects.add(foundURIs.get(ont.URI_RESTAURANT_GENERAL));
 			frequency_aspects.add(foundURIs.get(ont.URI_RESTAURANT_PRICES));
 			frequency_aspects.add(foundURIs.get(ont.URI_RESTAURANT_MISCELLANEOUS));
@@ -201,30 +210,51 @@ public class OntologySentimentAlgorithm extends AbstractAlgorithm {
 			frequency_aspects.add(foundURIs.get(ont.URI_DRINKS_STYLE_OPTIONS));
 			frequency_aspects.add(foundURIs.get(ont.URI_AMBIENCE_GENERAL));
 			frequency_aspects.add(foundURIs.get(ont.URI_SERVICE_GENERAL));
-			frequency_aspects.add(foundURIs.get(ont.URI_LOCATION_GENERAL));}
+			frequency_aspects.add(foundURIs.get(ont.URI_LOCATION_GENERAL));
+			}
 			
 			
 			boolean assignedPred = false;
-			boolean foundPos = foundURIs.containsKey(ont.URI_Positive);
-			boolean foundNeg = foundURIs.containsKey(ont.URI_Negative);
+			//boolean foundPos = foundURIs.containsKey(ont.URI_Positive);
+			//boolean foundNeg = foundURIs.containsKey(ont.URI_Negative);
 			//String prediction = "positive";
 			
 			int sum = 0;
-			int i;
-			for(i=0;i<12;i++){
-				sum += found_aspects[i];
+			for(int i = 0; i < 12; i++)
+			{
+				sum += found_aspects.get(i);
 			}
 			
-		if(sum == 1){
-			int j = Arrays.asList(found_aspects).indexOf(1);
+			ArrayList<Double> multiplication = new ArrayList<Double>();
+			for (int j = 0; j < found_aspects.size(); j++)
+			{
+				Double result = frequency_aspects.get(j) * found_aspects.get(j);
+				multiplication.add(result);
+			}
+			
+			Double maxFreq = 0.0;
+			for (int k = 0; k < multiplication.size(); k++)
+			{
+				if (multiplication.get(k) > maxFreq)
+				{
+					maxFreq = multiplication.get(k);
+				}
+			}
+			
+		if (sum == 1)
+		{
+			int j = found_aspects.indexOf(1);
 			prediction = classLabels.get(j);
 			assignedPred = true;
 		}
-		else if(sum > 1){
-			
+		else if (sum > 1)
+		{
+			int j = multiplication.indexOf(maxFreq);
+			prediction = classLabels.get(j);
+			assignedPred = true;
 		}
 			
-		
+		/**
 		if (foundNeg && !foundPos){
 				prediction = "negative";
 				assignedPred = true;
@@ -243,16 +273,17 @@ public class OntologySentimentAlgorithm extends AbstractAlgorithm {
 					assignedPred = true;
 				}
 			}
+			*/
 			
 			if (hasProperty("use_only_bow") || (hasProperty("use_bow_backup") && !assignedPred)){
 				Prediction backupPred = backupAlg.getPrediction(opinion).iterator().next();
-				prediction = backupPred.getAnnotation("polarity");
+				prediction = backupPred.getAnnotation("category");
 				//Framework.log("===\nUsing BOW backup to predict: " + prediction);
 			}
 			
 			
-			if (failureAnalysis && !opinion.getAnnotation("polarity").equals(prediction) &&
-					!opinion.getAnnotation("polarity").equals("neutral")){
+			if (failureAnalysis && !opinion.getAnnotation("category").equals(prediction) &&
+					!opinion.getAnnotation("category").equals("no_category")){
 				Framework.log("===");
 				Framework.log(opinion.toString());
 				Framework.log(getSentence(opinion).getAnnotation("text"));
@@ -261,21 +292,35 @@ public class OntologySentimentAlgorithm extends AbstractAlgorithm {
 	//			}
 				Framework.log("===");
 				Framework.log("Found URIs: "+foundURIs);
-				Framework.log("Found positive: " + foundPos);
-				Framework.log("Found negative: " + foundNeg);
-				Framework.log("Gold: "+opinion.getAnnotation("polarity"));
+				Framework.log("Found RESTAURANTS#GENERAL: " + res_gen);
+				Framework.log("Found RESTAURANTS#PRICE: " + res_pri);
+				Framework.log("Found RESTAURANTS#MISCELLANEOUS: " + res_misc);
+				Framework.log("Found FOOD#PRICE: " + food_pri);
+				Framework.log("Found FOOD#QUALITY: " + food_qua);
+				Framework.log("Found FOOD#STYLE&OPTIONS: " + food_sty);
+				Framework.log("Found DRINKS#PRICE: " + drink_pri);
+				Framework.log("Found DRINKS#QUALITY: " + drink_qua);
+				Framework.log("Found DRINKS#STYLE&OPTIONS: " + drink_sty);
+				Framework.log("Found AMBIENCE#GENERAL: " + amb_gen);
+				Framework.log("Found SERVICE#GENERAL: " + serv_gen);
+				Framework.log("Found LOCATION#GENERAL: " + loc_gen);
+				//Framewoek.log("Found positive: " + foundPos);
+				//Framework.log("Found negative: " + foundNeg);
+				Framework.log("Gold: "+opinion.getAnnotation("category"));
 				Framework.log("Predicted: "+prediction);
 			}
 			
+			
 			Prediction p = new Prediction(opinion);
-			p.putAnnotation("polarity", prediction);
-			String cat = "No sentiment";
-			if (foundPos && foundNeg)
-				cat="Positive and negative";
-			if (foundPos && !foundNeg)
-				cat="Only positive";
-			if (!foundPos && foundNeg)
-				cat="Only negative";
+			p.putAnnotation("category", prediction);
+			String cat = "No aspect";
+			//if (foundPos && foundNeg)
+			//	cat="Positive and negative";
+		//	if (foundPos && !foundNeg)
+				//cat="Only positive";
+		//	if (!foundPos && foundNeg)
+				//cat="Only negative";
+				
 			
 			
 			p.putAnnotation("group", cat);
