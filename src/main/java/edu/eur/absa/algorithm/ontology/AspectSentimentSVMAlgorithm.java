@@ -468,23 +468,62 @@ public class AspectSentimentSVMAlgorithm extends AbstractAlgorithm {
 				//only add ontology features when we have either Positive or Negative (not both)
 				if (hasProperty("use_ontology")){
 					featureURIs.addAll(ontAlg.findURIs(span, opinionsForReview, ont).keySet());
-//					if (featureURIs.contains(ont.URI_Positive) == featureURIs.contains(ont.URI_Negative)){
-//						featureURIs.remove(ont.URI_Negative);
-//						featureURIs.remove(ont.URI_Positive);
-//					}
-//					for (String featureURI : featureURIs){
-//						listOfAttributes.putIfAbsent(featureURI, new Attribute(featureURI));
-//						instanceValues.put(listOfAttributes.get(featureURI), 1.0);
-//					}
-					
 					//only use positive/negative from ontology, not rest of classes
-					if (featureURIs.contains(ont.URI_Positive) && !featureURIs.contains(ont.URI_Negative)){
-						listOfAttributes.putIfAbsent(ont.URI_Positive, new Attribute(ont.URI_Positive));
-						instanceValues.put(listOfAttributes.get(ont.URI_Positive), 1.0);
+//					if (featureURIs.contains(ont.URI_Positive) && !featureURIs.contains(ont.URI_Negative)){
+//						listOfAttributes.putIfAbsent(ont.URI_Positive, new Attribute(ont.URI_Positive));
+//						instanceValues.put(listOfAttributes.get(ont.URI_Positive), 1.0);
+//					}
+//					if (featureURIs.contains(ont.URI_Negative) && !featureURIs.contains(ont.URI_Positive)){
+//						listOfAttributes.putIfAbsent(ont.URI_Negative, new Attribute(ont.URI_Negative));
+//						instanceValues.put(listOfAttributes.get(ont.URI_Negative), 1.0);
+//					}
+					if (featureURIs.contains(ont.URI_RESTAURANT_GENERAL)){
+						listOfAttributes.putIfAbsent(ont.URI_RESTAURANT_GENERAL, new Attribute(ont.URI_RESTAURANT_GENERAL));
+						instanceValues.put(listOfAttributes.get(ont.URI_RESTAURANT_GENERAL), 1.0);
 					}
-					if (featureURIs.contains(ont.URI_Negative) && !featureURIs.contains(ont.URI_Positive)){
-						listOfAttributes.putIfAbsent(ont.URI_Negative, new Attribute(ont.URI_Negative));
-						instanceValues.put(listOfAttributes.get(ont.URI_Negative), 1.0);
+					if (featureURIs.contains(ont.URI_RESTAURANT_PRICES)){
+						listOfAttributes.putIfAbsent(ont.URI_RESTAURANT_PRICES, new Attribute(ont.URI_RESTAURANT_PRICES));
+						instanceValues.put(listOfAttributes.get(ont.URI_RESTAURANT_PRICES), 1.0);
+					}
+					if (featureURIs.contains(ont.URI_RESTAURANT_MISCELLANEOUS)){
+						listOfAttributes.putIfAbsent(ont.URI_RESTAURANT_MISCELLANEOUS, new Attribute(ont.URI_RESTAURANT_MISCELLANEOUS));
+						instanceValues.put(listOfAttributes.get(ont.URI_RESTAURANT_MISCELLANEOUS), 1.0);
+					}
+					if (featureURIs.contains(ont.URI_FOOD_PRICES)){
+						listOfAttributes.putIfAbsent(ont.URI_FOOD_PRICES, new Attribute(ont.URI_FOOD_PRICES));
+						instanceValues.put(listOfAttributes.get(ont.URI_FOOD_PRICES), 1.0);
+					}
+					if (featureURIs.contains(ont.URI_FOOD_QUALITY)){
+						listOfAttributes.putIfAbsent(ont.URI_FOOD_QUALITY, new Attribute(ont.URI_FOOD_QUALITY));
+						instanceValues.put(listOfAttributes.get(ont.URI_FOOD_QUALITY), 1.0);
+					}
+					if (featureURIs.contains(ont.URI_FOOD_STYLE_OPTIONS)){
+						listOfAttributes.putIfAbsent(ont.URI_FOOD_STYLE_OPTIONS, new Attribute(ont.URI_FOOD_STYLE_OPTIONS));
+						instanceValues.put(listOfAttributes.get(ont.URI_FOOD_STYLE_OPTIONS), 1.0);
+					}
+					if (featureURIs.contains(ont.URI_DRINKS_PRICES)){
+						listOfAttributes.putIfAbsent(ont.URI_DRINKS_PRICES, new Attribute(ont.URI_DRINKS_PRICES));
+						instanceValues.put(listOfAttributes.get(ont.URI_DRINKS_PRICES), 1.0);
+					}
+					if (featureURIs.contains(ont.URI_DRINKS_QUALITY)){
+						listOfAttributes.putIfAbsent(ont.URI_DRINKS_QUALITY, new Attribute(ont.URI_DRINKS_QUALITY));
+						instanceValues.put(listOfAttributes.get(ont.URI_DRINKS_QUALITY), 1.0);
+					}
+					if (featureURIs.contains(ont.URI_DRINKS_STYLE_OPTIONS)){
+						listOfAttributes.putIfAbsent(ont.URI_DRINKS_STYLE_OPTIONS, new Attribute(ont.URI_DRINKS_STYLE_OPTIONS));
+						instanceValues.put(listOfAttributes.get(ont.URI_DRINKS_STYLE_OPTIONS), 1.0);
+					}
+					if (featureURIs.contains(ont.URI_AMBIENCE_GENERAL)){
+						listOfAttributes.putIfAbsent(ont.URI_AMBIENCE_GENERAL, new Attribute(ont.URI_AMBIENCE_GENERAL));
+						instanceValues.put(listOfAttributes.get(ont.URI_AMBIENCE_GENERAL), 1.0);
+					}
+					if (featureURIs.contains(ont.URI_SERVICE_GENERAL)){
+						listOfAttributes.putIfAbsent(ont.URI_SERVICE_GENERAL, new Attribute(ont.URI_SERVICE_GENERAL));
+						instanceValues.put(listOfAttributes.get(ont.URI_SERVICE_GENERAL), 1.0);
+					}
+					if (featureURIs.contains(ont.URI_LOCATION_GENERAL)){
+						listOfAttributes.putIfAbsent(ont.URI_LOCATION_GENERAL, new Attribute(ont.URI_LOCATION_GENERAL));
+						instanceValues.put(listOfAttributes.get(ont.URI_LOCATION_GENERAL), 1.0);
 					}
 				}
 				
