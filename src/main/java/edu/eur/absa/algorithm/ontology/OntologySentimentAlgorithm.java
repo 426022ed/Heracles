@@ -225,6 +225,7 @@ public class OntologySentimentAlgorithm extends AbstractAlgorithm {
 				sum += found_aspects.get(i);
 			}
 			
+			/**
 			ArrayList<Double> multiplication = new ArrayList<Double>();
 			for (int j = 0; j < found_aspects.size(); j++)
 			{
@@ -240,6 +241,10 @@ public class OntologySentimentAlgorithm extends AbstractAlgorithm {
 					maxFreq = multiplication.get(k);
 				}
 			}
+			*/
+			
+			ArrayList<Double> multiplication = new ArrayList<Double>();
+			Double maxFreq = 0.0;
 			
 		if (sum == 1)
 		{
@@ -249,6 +254,22 @@ public class OntologySentimentAlgorithm extends AbstractAlgorithm {
 		}
 		else if (sum > 1)
 		{
+			
+			for (int j = 0; j < found_aspects.size(); j++)
+			{
+				Double result = frequency_aspects.get(j) * found_aspects.get(j);
+				multiplication.add(result);
+			}
+			
+			for (int k = 0; k < multiplication.size(); k++)
+			{
+				if (multiplication.get(k) > maxFreq)
+				{
+					maxFreq = multiplication.get(k);
+				}
+			}
+			
+			
 			int j = multiplication.indexOf(maxFreq);
 			prediction = classLabels.get(j);
 			assignedPred = true;

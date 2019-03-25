@@ -84,8 +84,8 @@ public class ESWC2018 {
 			.setProperty("ont", ontology)
 			.setProperty("ont_ns", "http://www.kimschouten.com/sentiment/restaurant");
 		
-//		runExperimentTable1(Ont,BoW,OntBoW,BoWOnt,train2015);
-		runExperimentTable2(Ont,BoW,OntBoW,BoWOnt,train2016);
+		runExperimentTable1(Ont,train2016);
+	//	runExperimentTable2(Ont,BoW,OntBoW,BoWOnt,train2016);
 //		runExperimentTable3(Ont,train2015,test2015,train2016,test2016);
 //		runExperimentFigure5(Ont,BoW,OntBoW,BoWOnt,train2015,test2015);
 //		runExperimentFigure6(Ont,BoW,OntBoW,BoWOnt,train2016,test2016);
@@ -96,18 +96,15 @@ public class ESWC2018 {
 	 * Experiment to get the results from Table 1
 	 */
 	public static void runExperimentTable1(AbstractAlgorithm Ont, 
-			AbstractAlgorithm BoW, 
-			AbstractAlgorithm OntBoW,
-			AbstractAlgorithm BoWOnt,
-			Dataset train2015) throws InstantiationException, IllegalAccessException {
+			Dataset train2016) throws InstantiationException, IllegalAccessException {
 
 		Framework.log("****************************");
 		Framework.log("*** Results for Table 1  ***");
 		Framework.log("****************************");
 		
 		Experiment.createNewExperiment()
-			.addAlgorithms(Ont, BoW, OntBoW, BoWOnt)
-			.setDataset(train2015)	
+			.addAlgorithms(Ont)
+			.setDataset(train2016)	
 			.setCrossValidation(1, 10, 0.8, 0.2)
 			.run();
 	}
